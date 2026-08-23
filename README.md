@@ -2,12 +2,29 @@
 
 A Minecraft launcher, written in Rust. Named honestly.
 
-This is an early-stage scaffold: the module layout for the launcher's backend
-exists, but nothing is wired up yet (no auth, no downloads, no launching).
-The window shell (menu bar, toolbar, instance tree, properties panel,
-console, status bar) is built and running on [`egui`](https://github.com/emilk/egui)
-via `eframe`, styled after a classic Eclipse/SWT-style desktop tool — but it's
-still just a shell over static sample data, not wired to the backend modules.
+This is an early-stage scaffold: most of the launcher backend is still
+`todo!()` stubs (auth, downloads, launching). The window shell (menu bar,
+toolbar, instance tree, properties panel, console, status bar) is built and
+running on [`egui`](https://github.com/emilk/egui) via `eframe`, styled after
+a classic Eclipse/SWT-style desktop tool — it's a shell over static sample
+data, not wired to the backend yet.
+
+One backend piece that *is* real: mod installation (`src/mods.rs`,
+`src/modrinth.rs`, `src/curseforge.rs`) resolves a mod and its required
+dependencies from [Modrinth](https://modrinth.com) and/or
+[CurseForge](https://www.curseforge.com), then downloads them into an
+instance's `mods/` directory, verifying file hashes where the provider
+supplies one. Modrinth's API is public and needs no key. **CurseForge
+requires your own API key** from https://console.curseforge.com — set
+`WML_CURSEFORGE_API_KEY` in your environment, or CurseForge-backed installs
+fail with a clear `MissingApiKey` error.
+
+## Debug vs. release builds
+
+`cargo build` (debug) keeps a console window with timestamped, chatty logs
+(`RUST_LOG` still overrides the default level). `cargo build --release`
+suppresses the console window on Windows and only logs warnings/errors — the
+standard `windows_subsystem` toggle in `src/main.rs`.
 
 ## Design
 

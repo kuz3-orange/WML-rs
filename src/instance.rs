@@ -3,6 +3,7 @@
 use std::path::PathBuf;
 
 use crate::java::JavaRuntime;
+use crate::mods::ModLoader;
 
 pub struct Instance {
     pub name: String,
@@ -14,6 +15,9 @@ pub struct Instance {
     /// Java runtime this instance launches with. Managed (downloaded and
     /// pinned by the launcher) rather than just detected from the system.
     pub java: JavaRuntime,
+    /// The mod loader this instance runs, if any. `None` means vanilla —
+    /// mods can't be installed on it (see `crate::mods::install`).
+    pub mod_loader: Option<ModLoader>,
 }
 
 pub fn list_instances() -> Vec<Instance> {
