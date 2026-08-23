@@ -2,10 +2,18 @@
 
 use std::path::PathBuf;
 
+use crate::java::JavaRuntime;
+
 pub struct Instance {
     pub name: String,
     pub version_id: String,
     pub dir: PathBuf,
+    /// UUID of the account this instance launches as. Each instance picks
+    /// its own account rather than sharing one global sign-in.
+    pub account_uuid: String,
+    /// Java runtime this instance launches with. Managed (downloaded and
+    /// pinned by the launcher) rather than just detected from the system.
+    pub java: JavaRuntime,
 }
 
 pub fn list_instances() -> Vec<Instance> {

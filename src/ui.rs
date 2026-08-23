@@ -6,6 +6,7 @@ use eframe::egui::{self, Color32, Rounding, Stroke};
 
 struct Instance {
     name: &'static str,
+    account: &'static str,
     version: &'static str,
     java: &'static str,
     last_played: &'static str,
@@ -15,22 +16,25 @@ struct Instance {
 const INSTANCES: &[Instance] = &[
     Instance {
         name: "Vanilla 1.21.4",
+        account: "NotSteve_47",
         version: "1.21.4 (release)",
-        java: "Temurin 21.0.2 (detected)",
+        java: "Temurin 21.0.2 (managed)",
         last_played: "2 days ago",
         playtime: "41h 12m total",
     },
     Instance {
         name: "Fabric 1.20.1 — Modpack Experiment",
+        account: "NotSteve_47",
         version: "1.20.1",
-        java: "Temurin 17.0.9 (detected)",
+        java: "Temurin 17.0.9 (managed)",
         last_played: "3 weeks ago",
         playtime: "6h 03m total",
     },
     Instance {
         name: "Snapshot 24w51a",
+        account: "TestAlt_12",
         version: "24w51a",
-        java: "Temurin 21.0.2 (detected)",
+        java: "Temurin 21.0.2 (managed)",
         last_played: "2 months ago",
         playtime: "0h 40m total",
     },
@@ -43,11 +47,11 @@ pub struct LauncherApp {
 
 pub fn run() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([1000.0, 680.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([760.0, 520.0]),
         ..Default::default()
     };
     eframe::run_native(
-        "Worst Minecraft Launcher — Instances",
+        "Worst Minecraft Launcher",
         options,
         Box::new(|cc| {
             apply_toolbox_style(&cc.egui_ctx);
@@ -78,7 +82,7 @@ fn apply_toolbox_style(ctx: &egui::Context) {
     ctx.set_visuals(visuals);
 
     let mut style = (*ctx.style()).clone();
-    style.spacing.item_spacing = egui::vec2(6.0, 4.0);
+    style.spacing.item_spacing = egui::vec2(5.0, 3.0);
     ctx.set_style(style);
 }
 
@@ -93,7 +97,6 @@ impl eframe::App for LauncherApp {
                 });
                 ui.menu_button("Edit", |_ui| {});
                 ui.menu_button("Instance", |_ui| {});
-                ui.menu_button("Window", |_ui| {});
                 ui.menu_button("Help", |_ui| {});
             });
         });
@@ -107,33 +110,21 @@ impl eframe::App for LauncherApp {
                 ui.separator();
                 let _ = ui.button("Refresh");
                 let _ = ui.button("Settings");
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    egui::ComboBox::from_label("")
-                        .selected_text(INSTANCES[self.selected].version)
-                        .show_ui(ui, |ui| {
-                            for (i, inst) in INSTANCES.iter().enumerate() {
-                                ui.selectable_value(&mut self.selected, i, inst.version);
-                            }
-                        });
-                });
             });
-            ui.add_space(2.0);
+            ui.add_space(1.0);
         });
 
         egui::TopBottomPanel::bottom("status_bar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.label("Ready.");
                 ui.separator();
-                ui.label("Java 21 detected");
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    ui.label("NotSteve_47");
-                });
+                ui.label(format!("{} instances", INSTANCES.len()));
             });
         });
 
         egui::SidePanel::left("instances")
             .resizable(true)
-            .default_width(230.0)
+            .default_width(170.0)
             .show(ctx, |ui| {
                 ui.label(egui::RichText::new("Instances").strong());
                 ui.separator();
@@ -148,10 +139,13 @@ impl eframe::App for LauncherApp {
             ui.label(egui::RichText::new(format!("Properties — {}", selected.name)).strong());
             ui.separator();
             egui::Grid::new("properties").num_columns(2).show(ui, |ui| {
+                ui.label("Account:");
+                ui.label(selected.account);
+                ui.end_row();
                 ui.label("Version:");
                 ui.label(selected.version);
                 ui.end_row();
-                ui.label("Java runtime:");
+                ui.label("Java:");
                 ui.label(selected.java);
                 ui.end_row();
                 ui.label("Last played:");
@@ -162,14 +156,13 @@ impl eframe::App for LauncherApp {
                 ui.end_row();
             });
 
-            ui.add_space(12.0);
-            ui.label(egui::RichText::new("Console <Worst Minecraft Launcher>").strong());
+            ui.add_space(8.0);
+            ui.label(egui::RichText::new("Console").strong());
             ui.separator();
             egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.style_mut().override_font_id = Some(egui::FontId::monospace(12.0));
-                ui.label("[11:04:02] Resolving version manifest... done");
-                ui.label("[11:04:03] Verifying assets (11,204 files, 0 missing)");
-                ui.label(format!("[11:04:04] Java runtime OK: {}", selected.java));
+                ui.style_mut().override_font_id = Some(egui::FontId::monospace(11.0));
+                ui.label("[11:04:02] Verifying assets... done");
+                ui.label(format!("[11:04:03] Managed Java OK: {}", selected.java));
                 ui.label("[11:04:04] Waiting for you to click Launch.");
             });
         });
