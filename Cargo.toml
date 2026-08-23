@@ -1,0 +1,12 @@
+[package]
+name = "worst-minecraft-launcher"
+version = "0.1.0"
+edition = "2021"
+description = "Worst Minecraft Launcher — a Minecraft launcher, allegedly."
+license = "MIT"
+
+[[bin]]
+name = "wml"
+path = "src/main.rs"
+
+[dependencies]
