@@ -6,8 +6,8 @@ mod instance;
 mod java;
 mod launch;
 mod mojang;
+mod ui;
 
-fn main() {
-    println!("Worst Minecraft Launcher v{}", env!("CARGO_PKG_VERSION"));
-    println!("(backend scaffold — nothing is wired up yet)");
+fn main() -> eframe::Result<()> {
+    ui::run()
 }
