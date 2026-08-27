@@ -41,6 +41,28 @@ impl ModLoader {
     }
 }
 
+impl std::fmt::Display for ModLoader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            ModLoader::Fabric => "Fabric",
+            ModLoader::Forge => "Forge",
+            ModLoader::Quilt => "Quilt",
+            ModLoader::NeoForge => "NeoForge",
+        };
+        f.write_str(name)
+    }
+}
+
+impl std::fmt::Display for Provider {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            Provider::Modrinth => "Modrinth",
+            Provider::CurseForge => "CurseForge",
+        };
+        f.write_str(name)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Provider {
     Modrinth,
@@ -507,5 +529,36 @@ mod tests {
         assert_eq!(installed.len(), 1);
         let contents = tokio::fs::read(&installed[0]).await.unwrap();
         assert_eq!(contents, payload);
+    }
+
+    /// End-to-end against the real Modrinth API: resolves a mod that has
+    /// required dependencies and downloads the whole set. Ignored by default
+    /// since it needs network access: `cargo test -- --ignored live_`
+    #[tokio::test]
+    #[ignore = "requires network access"]
+    async fn live_installs_a_mod_with_its_required_dependencies() {
+        let dir = tempfile::tempdir().unwrap();
+        let instance = test_instance(dir.path().to_path_buf(), Some(ModLoader::Fabric));
+        let modrinth = ModrinthClient::new();
+
+        // Roughly Enough Items requires Architectury API and Cloth Config,
+        // so a correct resolver installs more than just the one jar.
+        let installed = install(
+            &instance,
+            &[ModReference::modrinth("roughly-enough-items")],
+            &modrinth,
+            None,
+        )
+        .await
+        .unwrap();
+
+        assert!(
+            installed.len() >= 2,
+            "expected REI plus its required deps, got {installed:?}"
+        );
+        for path in &installed {
+            let metadata = tokio::fs::metadata(path).await.unwrap();
+            assert!(metadata.len() > 0, "{} is empty", path.display());
+        }
     }
 }

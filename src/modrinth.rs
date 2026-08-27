@@ -212,4 +212,21 @@ mod tests {
 
         assert!(matches!(err, ModrinthError::NoCompatibleVersion(id) if id == "p1"));
     }
+
+    /// Hits the real Modrinth API (no key needed). Ignored by default since it
+    /// needs network access: `cargo test -- --ignored live_`
+    #[tokio::test]
+    #[ignore = "requires network access"]
+    async fn live_fetches_fabric_api_versions() {
+        let client = ModrinthClient::new();
+        let version = client
+            .best_version("fabric-api", "fabric", "1.21.4")
+            .await
+            .unwrap();
+
+        assert!(version.loaders.contains(&"fabric".to_string()));
+        assert!(version.game_versions.contains(&"1.21.4".to_string()));
+        let file = version.primary_file().expect("expected a primary file");
+        assert!(file.filename.ends_with(".jar"), "got {}", file.filename);
+    }
 }

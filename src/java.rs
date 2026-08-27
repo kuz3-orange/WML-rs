@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+#[derive(Debug, Clone)]
 pub struct JavaRuntime {
     pub path: PathBuf,
     pub version: String,

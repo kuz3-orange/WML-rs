@@ -206,4 +206,22 @@ mod tests {
             .iter()
             .any(|d| d.mod_id == 222 && !d.is_required()));
     }
+
+    /// Hits the real CurseForge API. Ignored by default since it needs network
+    /// access and a key: run with
+    /// `WML_CURSEFORGE_API_KEY=... cargo test -- --ignored live_`
+    #[tokio::test]
+    #[ignore = "requires network access and WML_CURSEFORGE_API_KEY"]
+    async fn live_fetches_files_for_a_known_mod() {
+        let key = std::env::var("WML_CURSEFORGE_API_KEY")
+            .expect("set WML_CURSEFORGE_API_KEY to run the live test");
+        let client = CurseForgeClient::new(Some(key));
+
+        // 306612 = Fabric API, which has Fabric builds for many game versions.
+        let file = client.best_file(306612, 4, "1.21.4").await.unwrap();
+
+        assert_eq!(file.mod_id, 306612);
+        assert!(file.file_name.ends_with(".jar"), "got {}", file.file_name);
+        assert!(file.download_url.is_some(), "expected a download URL");
+    }
 }

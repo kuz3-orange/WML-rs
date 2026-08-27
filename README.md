@@ -9,15 +9,31 @@ running on [`egui`](https://github.com/emilk/egui) via `eframe`, styled after
 a classic Eclipse/SWT-style desktop tool — it's a shell over static sample
 data, not wired to the backend yet.
 
-One backend piece that *is* real: mod installation (`src/mods.rs`,
-`src/modrinth.rs`, `src/curseforge.rs`) resolves a mod and its required
-dependencies from [Modrinth](https://modrinth.com) and/or
+One backend piece that *is* real, and wired into the UI: mod installation
+(`src/mods.rs`, `src/modrinth.rs`, `src/curseforge.rs`) resolves a mod and its
+required dependencies from [Modrinth](https://modrinth.com) and/or
 [CurseForge](https://www.curseforge.com), then downloads them into an
 instance's `mods/` directory, verifying file hashes where the provider
-supplies one. Modrinth's API is public and needs no key. **CurseForge
-requires your own API key** from https://console.curseforge.com — set
-`WML_CURSEFORGE_API_KEY` in your environment, or CurseForge-backed installs
-fail with a clear `MissingApiKey` error.
+supplies one. Open it from **Instance → Install mods…** (or the toolbar's
+*Mods* button): pick a provider, add one or more mods, hit Install. The work
+runs on a background thread and streams progress into the console panel, so
+the window stays responsive.
+
+Modrinth's API is public and needs no key. **CurseForge requires your own API
+key** from https://console.curseforge.com — set `WML_CURSEFORGE_API_KEY` in
+your environment before launching, or CurseForge-backed installs fail with a
+clear `MissingApiKey` error. Never commit the key; the launcher only ever
+reads it from the environment.
+
+### Live API tests
+
+The suite is hermetic by default (mocked HTTP, no network). Tests that hit the
+real APIs are `#[ignore]`d:
+
+```sh
+cargo test -- --ignored live_                                  # Modrinth only
+WML_CURSEFORGE_API_KEY=... cargo test -- --ignored live_       # both
+```
 
 ## Debug vs. release builds
 

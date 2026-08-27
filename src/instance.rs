@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use crate::java::JavaRuntime;
 use crate::mods::ModLoader;
 
+#[derive(Debug, Clone)]
 pub struct Instance {
     pub name: String,
     pub version_id: String,
